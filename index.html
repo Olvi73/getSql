@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>匹配SQL参数</title>
+	</head>
+	<body bgcolor="#9ACD32">
+		<textarea id="sql" style="width:100%;height:20%;" cols="160" rows="15" onbeforepaste="cleanText()" onpaste="A()"  placeholder="请输入sql语句"></textarea><br>
+		<textarea id="canshu" style="width:100%;" cols="160" rows="6" placeholder="请输入参数"></textarea><br>
+		<input type="button" onclick="getSql()" value="  确     定   "> 
+		<strong id="reback" style="color:red;margin-left: 100px;;"></strong>
+		<br>
+		<textarea id="to" style="width:100%;height:40%;" cols="160" rows="18"  background-color="blue" placeholder="结果显示"></textarea>
+		<script type="text/javascript">
+		
+		function getSql(){
+		debugger;
+			//document.getElementById("canshu").value="";
+			var str = document.getElementById("sql").value;
+			
+			//自动将参数放入参数框
+			var v0 = str.indexOf("{");
+			if(v0 > 0){
+				var aa = str.length;
+				var canshutemp = str.substring(v0 -1,aa);
+				document.getElementById("canshu").value =canshutemp;
+				str = str.substring(0,v0);
+				document.getElementById("sql").value=str;
+			}
+			
+			
+			var canshu="";
+			canshu = document.getElementById("canshu").value;
+			if(canshu+""=="undefined" || canshu+""==""){
+				document.getElementById("reback").innerHTML="没有参数！";
+				document.getElementById("to").value=str;
+				return;
+			}
+			canshu = canshu.replaceAll(/\{/g,"");
+			canshu = canshu.replaceAll(/\}/g,",");
+			canshu = canshu.replaceAll(/\n/g,"");
+			var csArray = canshu.split(",");
+			var b=(str.split("?")).length-1;
+			var a=csArray.length - 1;
+			
+			for(var i=0;i< a;i++){
+				var value1 = csArray[i];
+				var valueArray = value1.split("=");
+				var v1 = valueArray[0];
+				var v2 = valueArray[1];
+				var v3 = v1.indexOf("numeric");
+				if(v3>0){
+					str = str.replace("?",v2);
+				}else{
+					str = str.replace("?","'"+v2+"'");
+				}
+				
+			}
+			if(a>b){
+				document.getElementById("reback").innerHTML="多出"+(a-b)+"个参数！共"+a+"个参数";
+			}else if(a<b){
+				document.getElementById("reback").innerHTML="缺少"+(b-a)+"个参数！共"+a+"个参数";
+				
+			}
+			
+			document.getElementById("to").value= str ;
+		
+				
+		copyToClipBoard(document.getElementById("to").value);
+		}
+		
+		function cleanText(){
+			document.getElementById("sql").value="";
+			}
+			var t;
+	     function A(){ 
+	             t = setTimeout("B()","200");          
+	     }
+	     function B(){
+	     	getSql();
+	         clearTimeout(t);
+	     }
+		function copyToClipBoard(s){
+		    //alert(s);
+		    if(window.clipboardData){
+		       window.clipboardData.setData("Text",s);
+		       //alert("已经复制到剪切板！");
+		       document.getElementById("reback").innerHTML="已经复制到剪切板！";
+		       clean();
+		    }else if(navigator.userAgent.indexOf("Opera") != -1) {  
+		       window.location = s;  
+		    }else if(window.netscape) {  
+		        try {  
+		            netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");  
+		        } catch (e) {  
+		            alert("被浏览器拒绝！\n请在浏览器地址栏输入'about:config'并回车\n然后将'signed.applets.codebase_principal_support'设置为'true'");  
+		        }  
+		        var clip = Components.classes['@mozilla.org/widget/clipboard;1'].createInstance(Components.interfaces.nsIClipboard);  
+		        if (!clip)  
+		            return;  
+		        var trans = Components.classes['@mozilla.org/widget/transferable;1'].createInstance(Components.interfaces.nsITransferable);  
+		        if (!trans)  
+		            return;  
+		        trans.addDataFlavor('text/unicode');  
+		        var str = new Object();  
+		        var len = new Object();  
+		        var str = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString);  
+		        var copytext = s;  
+		        str.data = copytext;  
+		        trans.setTransferData("text/unicode",str,copytext.length*2);  
+		        var clipid = Components.interfaces.nsIClipboard;  
+		        if (!clip)  
+		            return false;  
+		        clip.setData(trans,null,clipid.kGlobalClipboard);  
+		        //alert("已经复制到剪切板！") 
+		        document.getElementById("reback").innerHTML="已经复制到剪切板！";
+		        clean();
+		    }
+		}
+			var t2;
+	     function clean(){ 
+	         t2 = setTimeout("cleanInfo()","1000");          
+	     }
+	     function cleanInfo(){
+	     		document.getElementById("reback").innerHTML="";
+	        clearTimeout(t2);
+	     }
+		</script>
+	</body>
+</html>
